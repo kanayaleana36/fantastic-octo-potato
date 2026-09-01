@@ -1,0 +1,12 @@
+{
+  "name": "composio-github-cluster-runner",
+  "version": "1.0.0",
+  "description": "Composio 500x xLarge 24/7 Cloud Miner Cluster Runner",
+  "main": "composio_runner.js",
+  "scripts": {
+    "start": "node composio_runner.js"
+  },
+  "dependencies": {
+    "@composio/core": "^0.18.0"
+  }
+}
